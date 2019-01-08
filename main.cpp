@@ -25,10 +25,11 @@ size_t reserve(char ***source, const size_t needed_size, const size_t current_si
         return needed_size;
     }
 
-    if (current_used_size == current_size && current_size < needed_size) {
+    if ((current_used_size == current_size && current_size < needed_size) ||
+        (needed_size < current_size && needed_size >= current_used_size)) {
         char **tmp = *source;
         *source = new char *[needed_size];
-        for (size_t i = 0; i < current_size; i++)
+        for (size_t i = 0; i < current_used_size; i++)
             *(*source + i) = *(tmp + i);
         delete[]tmp;
     }
@@ -89,6 +90,7 @@ size_t fast_split(char ***result, const char *_source, const char *delim) {
 
 #define TEST_FUNCTION_SPEED(CYCLES, MSG, FUNC, ...) \
 {\
+    std::cout << "==========================\n"; \
     size_t accum = 0;\
     std::cout << MSG << std::endl;\
     for (size_t i = 0; i < CYCLES; i++) {\
@@ -96,7 +98,7 @@ size_t fast_split(char ***result, const char *_source, const char *delim) {
         FUNC(__VA_ARGS__);\
         accum += time_res(current_millis() - start);\
     }\
-    std::cout << "Cycles: " << CYCLES << "\r\nAVG Time " << (accum / CYCLES) << " nanoseconds\r\n\r\n";\
+    std::cout << "Cycles: " << CYCLES << "\nAVG Time " << (accum / CYCLES) << " nanoseconds\r\n\r\n";\
 }
 
 void test_stl_lib(const std::string &base) {
@@ -108,22 +110,23 @@ void test_stl_lib(const std::string &base) {
 }
 
 int main() {
-    const static size_t test_count = 10000000;
+    const static size_t test_count = 100000;
 
     std::string base;
 
     char **result = nullptr;
 
-    base = "L a";
+    base = "Splitting another string with spaces Splitting another string with spaces And with new lines";
     std::cout << "SPLITTING STRING BY SPACES: \"" << base << "\"\r\n";
-    TEST_FUNCTION_SPEED(test_count, "Working with memory directly", fast_split, &result, base.c_str(), " ");
+    TEST_FUNCTION_SPEED(test_count, "Working with memory directly", fast_split, &result, base.c_str(), "lines");
     TEST_FUNCTION_SPEED(test_count, "Working with C++17 STL library", test_stl_lib, base);
 
-    std::cout << "==========================\r\n\r\n";
-    base = "Splitting another string with spaces\r\nAnd with new lines";
+    base = "Splitting another string with spaces Splitting another string with spaces And with new lines";
     std::cout << "SPLITTING STRING BY SPACES: \"" << base << "\"\r\n";
-    TEST_FUNCTION_SPEED(test_count, "Working with memory directly", fast_split, &result, base.c_str(), " ");
+    TEST_FUNCTION_SPEED(test_count, "Working with memory directly", fast_split, &result, base.c_str(), "Splitting another string ");
     TEST_FUNCTION_SPEED(test_count, "Working with C++17 STL library", test_stl_lib, base);
+
+    system("sleep 1");
 
     return 0;
 }
