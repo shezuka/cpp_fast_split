@@ -24,8 +24,7 @@ int main() {
     string base = "space split a simple string";
     const char *base_str = base.c_str();
 
-    auto e = explode(base_str, "ce ");
-    cout << e.size() << endl;
+    auto e = explode(base_str, " ", 3);
     for (size_t i = 0; i < e.size(); i++) {
         cout << e[i] << endl;
     }

@@ -30,8 +30,9 @@ size_t exploder::allocate(char ***source,
 }
 
 exploder::exploder(const char *source, size_t source_len,
-                   const char *delim, size_t delim_len)
-        : _source_len(source_len), _delim_len(delim_len) {
+                   const char *delim, size_t delim_len,
+                   const size_t limit)
+        : _source_len(source_len), _delim_len(delim_len), _limit(limit) {
     _source = new char[source_len];
     strcpy(_source, source);
 
@@ -43,6 +44,12 @@ exploder::~exploder() {
     delete[]_source;
     delete[]_delim;
     delete[]_result;
+}
+
+bool exploder::is_limited() const {
+    if (_limit == 0) return false;
+
+    return _limit == (_result_len + 1);
 }
 
 void exploder::process() {
@@ -60,8 +67,11 @@ void exploder::process() {
                 delim_start_pos = str_pos;
         }
 
-        if (delim_start_pos != _npos
-            || (str_pos + 1 == _source_len && start < str_pos)) {
+        if (is_limited()) {
+            allocate(&_result, _result_len, allocated_size, _result_len + 1);
+            _result[_result_len++] = _source + start;
+            break;
+        } else if ((delim_start_pos != _npos) || (str_pos + 1 == _source_len && start < str_pos)) {
             if (start != delim_start_pos) {
                 allocated_size = allocate(&_result, _result_len, allocated_size, allocated_size + 10);
                 _source[delim_start_pos] = '\0';
