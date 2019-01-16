@@ -3,4 +3,4 @@ project(fast_split)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(fast_split main.cpp exploder.cpp exploder.h explode.h explode.cpp)
+add_library(fast_split SHARED exploder.cpp exploder.h explode.h explode.cpp)
