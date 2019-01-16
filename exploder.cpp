@@ -33,10 +33,10 @@ exploder::exploder(const char *source, size_t source_len,
                    const char *delim, size_t delim_len,
                    const size_t limit)
         : _source_len(source_len), _delim_len(delim_len), _limit(limit) {
-    _source = new char[source_len];
+    _source = new char[source_len + 1];
     strcpy(_source, source);
 
-    _delim = new char[delim_len];
+    _delim = new char[delim_len + 1];
     strcpy(const_cast<char *>(_delim), delim);
 }
 
